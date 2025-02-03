@@ -3,4 +3,4 @@ langchain
 langchain-groq 
 Pypdf 
 langchain-huggingface 
-chromadb 
+chromadb==0.3.29
