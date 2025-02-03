@@ -7,27 +7,35 @@ from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_core.output_parsers import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 import warnings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+import os
 
 warnings.filterwarnings("ignore")
 groq_api_key = st.secrets["API_KEY"]
+
 hf_token = st.secrets["HF_TOKEN"]
 
-persist_directory = "./chroma_db"
-vector_db = Chroma(
-    persist_directory=persist_directory, embedding_function=HuggingFaceEmbeddings()
-)
-retriever = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+pdf_doc = PyPDFLoader("./Pdf_for_rag_chatbot.pdf").load()
+splitter = RecursiveCharacterTextSplitter(chunk_overlap=20, chunk_size=400)
+docs = splitter.split_documents(pdf_doc)
 
+# savipersistingng the vector database [in our cwd] by 
+persist_directory = "./chroma_db"
+vector_db = Chroma.from_documents(docs, HuggingFaceEmbeddings(), persist_directory=persist_directory)
+db = vector_db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
 chat_bot = ChatGroq(model="gemma2-9b-it", api_key=groq_api_key, temperature=0.2)
-
 
 template = """You are an AI language model Assistant. Your task is to generate different versions of the given
 user question to retrieve relevant documents from a vector database. Provide these alternative questions separated by newlines.
 Original question: {question}"""
+
 query_prompt = PromptTemplate.from_template(template)
 retriever_from_llm = MultiQueryRetriever.from_llm(
-    retriever=retriever, llm=chat_bot, prompt=query_prompt
+    retriever=db, llm=chat_bot, prompt=query_prompt
 )
 
 template = """Answer the question based ONLY on the following context: {context}
