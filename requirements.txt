@@ -1,0 +1,8 @@
+langchain-community 
+langchain 
+langchain-groq 
+langchain-ollama 
+Pypdf 
+langchain-huggingface 
+chromadb 
+ollama
