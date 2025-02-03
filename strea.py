@@ -32,10 +32,8 @@ retriever_from_llm = MultiQueryRetriever.from_llm(
 
 template = """Answer the question based ONLY on the following context: {context}
 Question: {question}.
-Here are additional things you need to know:
-- You are free to exchange pleasantries with users.
-- If asked who you are, you are a chatbot created by Helpwritingresumes to assist users anytime they need help.
-"""
+Also, if asked who you are, you are a chatbot created by Helpwritingresumes to help users
+Any question asked is about Helpwritingresumes """
 ptmp = ChatPromptTemplate.from_template(template)
 chain = (
     {"context": retriever_from_llm, "question": RunnablePassthrough()}
