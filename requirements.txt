@@ -1,9 +1,6 @@
 langchain-community 
 langchain 
 langchain-groq 
-langchain-ollama 
 Pypdf 
 langchain-huggingface 
 chromadb 
-ollama
-sqlite3 == 3.35.0
